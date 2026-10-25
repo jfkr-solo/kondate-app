@@ -19,6 +19,8 @@ export type Flavor =
   | "洋風";
 
 export type Equipment = "電子レンジ" | "魚焼きグリル" | "オーブン" | "揚げ鍋";
+export const SERVING_OPTIONS = [1, 2, 3, 4];
+
 export const ALL_EQUIPMENT: Equipment[] = ["電子レンジ", "魚焼きグリル", "オーブン", "揚げ鍋"];
 
 export type Unit =
@@ -134,8 +136,8 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  servings: 2,
-  budgetPerMeal: 1500,
+  servings: 3,
+  budgetPerMeal: 2000,
   targetProtein: 30,
   maxCookTime: 45,
   dislikes: [],

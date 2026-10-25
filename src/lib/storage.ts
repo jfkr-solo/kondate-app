@@ -29,8 +29,11 @@ function write(key: string, value: unknown) {
 }
 
 export function loadAll(): StoredData {
+  const settings = { ...DEFAULT_SETTINGS, ...read<Partial<Settings>>("settings", {}) };
+  // 人数は1〜4人分から選ぶ
+  settings.servings = Math.min(4, Math.max(1, Math.round(settings.servings) || DEFAULT_SETTINGS.servings));
   return {
-    settings: { ...DEFAULT_SETTINGS, ...read<Partial<Settings>>("settings", {}) },
+    settings,
     history: read<HistoryEntry[]>("history", []),
     plans: read<WeekPlan[]>("plans", []),
     shoppingChecks: read<Record<string, boolean>>("shopping", {}),

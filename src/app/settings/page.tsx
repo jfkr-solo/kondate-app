@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useApp } from "@/components/AppState";
+import { ServingsPicker } from "@/components/ServingsPicker";
 import { ALL_EQUIPMENT, ALLERGENS, type Settings } from "@/lib/types";
 
 export default function SettingsPage() {
@@ -39,10 +40,10 @@ export default function SettingsPage() {
     <>
       <h1>設定</h1>
       <div className="card">
-        <label className="field">
-          <span>1回あたりの人数</span>
-          <input type="number" inputMode="numeric" min={1} max={10} value={draft.servings} onChange={num("servings", 1, 10)} />
-        </label>
+        <div className="field">
+          <span style={{ display: "block", fontSize: "0.88rem", fontWeight: 600, marginBottom: 6 }}>1回あたりの人数</span>
+          <ServingsPicker value={draft.servings} onChange={(n) => { setDraft({ ...draft, servings: n }); setSaved(false); }} />
+        </div>
         <label className="field">
           <span>1食あたりの予算（{draft.servings}人分・円）</span>
           <input type="number" inputMode="numeric" step={100} min={300} max={10000} value={draft.budgetPerMeal} onChange={num("budgetPerMeal", 300, 10000)} />
