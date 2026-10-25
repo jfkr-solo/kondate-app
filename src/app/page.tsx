@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { useApp } from "@/components/AppState";
 import { DishCard } from "@/components/DishView";
+import { ServingsPicker } from "@/components/ServingsPicker";
 import { getDish } from "@/lib/dishes";
 import { addDays, formatDate, mondayOf, monthOf, weekdayIndex } from "@/lib/dates";
 import { riceProteinPerServing, seasonalIngredientsOf } from "@/lib/nutrition";
@@ -76,6 +77,9 @@ function TodayInner() {
       </div>
 
       <div className="card">
+        <div style={{ marginBottom: 12 }}>
+          <ServingsPicker value={app.settings.servings} onChange={(n) => app.setSettings({ ...app.settings, servings: n })} />
+        </div>
         <div className="summary">
           <div>
             <div className="num">{protein}g</div>

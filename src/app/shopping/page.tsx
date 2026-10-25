@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useApp } from "@/components/AppState";
+import { ServingsPicker } from "@/components/ServingsPicker";
 import { addDays, formatDate, mondayOf } from "@/lib/dates";
 import { buildShoppingList, formatAmount, riceToGo } from "@/lib/shopping";
 import type { IngredientKind } from "@/lib/types";
@@ -33,6 +34,9 @@ export default function ShoppingPage() {
             {o === 0 ? "今週" : "来週"}
           </button>
         ))}
+      </div>
+      <div style={{ marginBottom: 10 }}>
+        <ServingsPicker value={app.settings.servings} onChange={(n) => app.setSettings({ ...app.settings, servings: n })} />
       </div>
       <label className="row small" style={{ marginBottom: 10 }}>
         <input type="checkbox" checked={onlyUpcoming} onChange={(e) => setOnlyUpcoming(e.target.checked)} />
