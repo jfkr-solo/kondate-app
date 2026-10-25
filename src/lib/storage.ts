@@ -9,6 +9,7 @@ export interface StoredData {
   history: HistoryEntry[];
   plans: WeekPlan[];
   shoppingChecks: Record<string, boolean>;
+  pantry: string[];
 }
 
 function read<T>(key: string, fallback: T): T {
@@ -37,6 +38,7 @@ export function loadAll(): StoredData {
     history: read<HistoryEntry[]>("history", []),
     plans: read<WeekPlan[]>("plans", []),
     shoppingChecks: read<Record<string, boolean>>("shopping", {}),
+    pantry: read<string[]>("pantry", []),
   };
 }
 
@@ -51,6 +53,10 @@ export function savePlans(p: WeekPlan[]) {
 }
 export function saveShoppingChecks(c: Record<string, boolean>) {
   write("shopping", c);
+}
+
+export function savePantry(p: string[]) {
+  write("pantry", p);
 }
 
 export function newId(): string {

@@ -27,6 +27,7 @@ import {
   pastaAllowed,
   proteinGroup,
 } from "./rules";
+import { mainInPantry, pantryCoverage } from "./pantry";
 import { type CheckResult, errorCount, validateWeek, warnCount } from "./validator";
 import type { DayPlan, Dish, Settings, WeekPlan } from "./types";
 
@@ -81,6 +82,15 @@ interface FillContext {
   events: MealEvent[]; // 確定済み（履歴＋他の計画＋この週で既に決まった日）
   settings: Settings;
   rng: Rng;
+  pantry: Set<string>; // 食材リスト（家にある食材）
+}
+
+/** 食材リストにある食材で作れる料理を優先する加点 */
+function pantryBonus(dish: Dish, ctx: FillContext, weight: number): number {
+  if (ctx.pantry.size === 0) return 0;
+  let s = pantryCoverage(dish, ctx.pantry).ratio * weight;
+  if (dish.category === "主菜" && mainInPantry(dish, ctx.pantry)) s += weight * 0.6;
+  return s;
 }
 
 function baseFilter(dish: Dish, date: string, ctx: FillContext): boolean {
@@ -144,6 +154,7 @@ function scoreMain(dish: Dish, date: string, ctx: FillContext): number {
   const allowance = ctx.settings.budgetPerMeal * 0.6;
   if (cost > allowance) s -= (cost - allowance) / 100;
 
+  s += pantryBonus(dish, ctx, 8);
   s += ctx.rng() * 3;
   return s;
 }
@@ -168,6 +179,7 @@ function scoreSide(dish: Dish, main: Dish, date: string, ctx: FillContext, weekS
   s -= mainFoods(dish).filter((f) => mf.has(f)).length * 1.5;
 
   s += proteinPerServing(dish) / 4;
+  s += pantryBonus(dish, ctx, 6);
   s += ctx.rng() * 2;
   return s;
 }
@@ -191,6 +203,7 @@ function scoreSoup(dish: Dish, main: Dish, side: Dish, date: string, ctx: FillCo
   const usedProtein = new Set([...proteinFoods(main), ...proteinFoods(side)]);
   s -= proteinFoods(dish).filter((f) => usedProtein.has(f)).length * 3;
   s -= mainFoods(dish).filter((f) => used.has(f)).length * 1;
+  s += pantryBonus(dish, ctx, 5);
   s += ctx.rng() * 2;
   return s;
 }
@@ -340,6 +353,7 @@ export interface GenerateInput {
   settings: Settings;
   seed?: number;
   forcedTypes?: Map<string, DayType>; // 1日だけ再提案する場合など
+  pantry?: string[]; // 食材リスト（ある食材で作れる料理を優先）
 }
 
 export interface GenerateResult {
@@ -361,7 +375,7 @@ export function generatePlan(input: GenerateInput, maxAttempts = 40): GenerateRe
     const keptEvents = eventsFromPlans([{ weekStart: input.weekStart, days: kept, generatedAt: "", seed: 0 }]);
     const fixed = [...input.context.filter((e) => !dates.includes(e.date) || e.source === "history"), ...keptEvents];
     const types = input.forcedTypes ?? assignDayTypes(dates, fixed, input.settings, rng);
-    const ctx: FillContext = { events: [...fixed], settings: input.settings, rng };
+    const ctx: FillContext = { events: [...fixed], settings: input.settings, rng, pantry: new Set(input.pantry ?? []) };
     const weekSeasonal = new Set<string>();
 
     // 魚・パスタ・揚げ物の日を先に埋める（候補が少ないため）

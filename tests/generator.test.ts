@@ -168,3 +168,37 @@ describe("手入力の履歴の判定", () => {
     expect(isFriedEvent(ev("鶏のから揚げ"))).toBe(true);
   });
 });
+
+describe("食材リスト", () => {
+  it("食材リストにある食材で作れる料理を優先する", async () => {
+    const { pantryCoverage } = await import("@/lib/pantry");
+    const weekStart = "2026-10-26";
+    const pantry = ["鶏むね肉", "ブロッコリー", "しめじ", "卵", "玉ねぎ", "木綿豆腐", "絹ごし豆腐", "乾燥わかめ", "青ねぎ", "にんじん"];
+    const ratio = (p: string[]) => {
+      const set = new Set(pantry);
+      let sum = 0;
+      for (let seed = 1; seed <= 5; seed++) {
+        const r = generatePlan({ dates: weekDates(weekStart), weekStart, keptDays: [], context: [], settings: DEFAULT_SETTINGS, seed, pantry: p });
+        expect(errorCount(r.checks)).toBe(0);
+        for (const d of r.plan.days) for (const id of [d.mainId, d.sideId, d.soupId]) sum += pantryCoverage(getDish(id)!, set).ratio;
+      }
+      return sum;
+    };
+    expect(ratio(pantry)).toBeGreaterThan(ratio([]) * 1.3);
+  });
+
+  it("食材リストがあっても必須条件は守る（重複・揚げ物・魚）", () => {
+    const results = simulate("2026-10-05", 3, DEFAULT_SETTINGS, 7);
+    const pantry = ["鶏もも肉", "片栗粉", "サバ", "生鮭"];
+    const r = generatePlan({
+      dates: weekDates("2026-10-26"),
+      weekStart: "2026-10-26",
+      keptDays: [],
+      context: eventsFromPlans(results.map((x) => x.plan)),
+      settings: DEFAULT_SETTINGS,
+      seed: 1,
+      pantry,
+    });
+    expect(errorCount(r.checks)).toBe(0);
+  });
+});

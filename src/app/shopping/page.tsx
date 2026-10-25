@@ -18,7 +18,11 @@ export default function ShoppingPage() {
   const weekStart = addDays(mondayOf(app.today), offset * 7);
   const plan = app.planFor(weekStart);
   const days = (plan?.days ?? []).filter((d) => !onlyUpcoming || d.date >= app.today);
-  const items = buildShoppingList(days, app.settings.servings);
+  const all = buildShoppingList(days, app.settings.servings);
+  // 食材リスト（家にある食材）は買わなくてよいので分けて表示
+  const pantry = new Set(app.pantry);
+  const items = all.filter((i) => !pantry.has(i.name));
+  const atHome = all.filter((i) => pantry.has(i.name));
   const groups = new Map<IngredientKind, typeof items>();
   for (const it of items) groups.set(it.kind, [...(groups.get(it.kind) ?? []), it]);
 
@@ -83,6 +87,22 @@ export default function ShoppingPage() {
                 })}
               </div>
             ))}
+          {atHome.length > 0 && (
+            <details className="card">
+              <summary>🥕 家にある食材（食材リスト）{atHome.length}品目　買わなくてOK</summary>
+              {atHome.map((it) => (
+                <div key={it.name} className="row spread small" style={{ padding: "4px 0", borderBottom: "1px dashed var(--line)" }}>
+                  <span>{it.name === "ご飯" ? "お米" : it.name}</span>
+                  <span className="muted">
+                    {it.name === "ご飯"
+                      ? `約${riceToGo(it.amounts[0].amount ?? 0)}合`
+                      : it.amounts.map((a) => formatAmount(a.amount, a.unit)).join(" + ")}
+                  </span>
+                </div>
+              ))}
+              <p className="muted small">量が足りない場合は「食材リスト」で外すと買い物リストに戻ります。</p>
+            </details>
+          )}
           <div className="card">
             <button className="btn ghost small" onClick={() => setShowSeasonings(!showSeasonings)}>
               {showSeasonings ? "調味料を隠す" : "調味料も表示（家にあるか確認）"}
