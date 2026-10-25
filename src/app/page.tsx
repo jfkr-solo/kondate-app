@@ -10,6 +10,7 @@ import { getDish } from "@/lib/dishes";
 import { addDays, formatDate, mondayOf, monthOf, weekdayIndex } from "@/lib/dates";
 import { riceProteinPerServing, seasonalIngredientsOf } from "@/lib/nutrition";
 import { dayCost, dayProtein } from "@/lib/validator";
+import { pantryCoverage } from "@/lib/pantry";
 
 function TodayInner() {
   const app = useApp();
@@ -67,6 +68,9 @@ function TodayInner() {
   const protein = dayProtein(day);
   const cost = dayCost(day, app.settings.servings);
   const seasonalNames = [...new Set(dishes.flatMap((d) => seasonalIngredientsOf(d!, month).map((i) => i.name)))];
+  const pantrySet = new Set(app.pantry);
+  const foods = [...new Set(dishes.flatMap((d) => [...pantryCoverage(d!, pantrySet).have, ...pantryCoverage(d!, pantrySet).missing]))];
+  const haveFoods = foods.filter((f) => pantrySet.has(f));
   const pct = Math.min(100, Math.round((protein / app.settings.targetProtein) * 100));
 
   return (
@@ -102,6 +106,11 @@ function TodayInner() {
           {!main?.isPasta && `（ご飯150g ${riceProteinPerServing()}g を含む）`}
           {seasonalNames.length > 0 && ` ・ 旬：${seasonalNames.join("、")}`}
         </p>
+        {app.pantry.length > 0 && (
+          <p className="small" style={{ margin: "4px 0 0" }}>
+            🥕 食材リストにある食材：{foods.length}品目中 {haveFoods.length}品目
+          </p>
+        )}
       </div>
 
       {day.notes.map((n, i) => (
@@ -110,9 +119,9 @@ function TodayInner() {
         </div>
       ))}
 
-      {main && <DishCard dish={main} month={month} servings={app.settings.servings} />}
-      {side && <DishCard dish={side} month={month} servings={app.settings.servings} />}
-      {soup && <DishCard dish={soup} month={month} servings={app.settings.servings} />}
+      {main && <DishCard dish={main} month={month} servings={app.settings.servings} pantry={pantrySet} />}
+      {side && <DishCard dish={side} month={month} servings={app.settings.servings} pantry={pantrySet} />}
+      {soup && <DishCard dish={soup} month={month} servings={app.settings.servings} pantry={pantrySet} />}
       {main && !main.isPasta && <p className="muted small">主食：ご飯（1人150g）</p>}
 
       <div className="card">

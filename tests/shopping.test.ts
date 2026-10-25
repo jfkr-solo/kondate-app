@@ -35,3 +35,14 @@ describe("買い物リスト", () => {
     expect(formatAmount(null, "少々")).toBe("少々");
   });
 });
+
+describe("食材リストの判定", () => {
+  it("料理の食材のうち家にあるものの割合を計算する（調味料・水は除く）", async () => {
+    const { pantryCoverage } = await import("@/lib/pantry");
+    const { getDish } = await import("@/lib/dishes");
+    const c = pantryCoverage(getDish("m001")!, new Set(["鶏もも肉", "醤油"])); // 鶏もも肉・キャベツ
+    expect(c.have).toEqual(["鶏もも肉"]);
+    expect(c.missing).toEqual(["キャベツ"]);
+    expect(c.ratio).toBe(0.5);
+  });
+});

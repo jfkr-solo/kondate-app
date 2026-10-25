@@ -39,7 +39,7 @@ export function GenreBadge({ genre }: { genre: Genre }) {
 }
 
 /** 画面A：料理の詳細カード */
-export function DishCard({ dish, month, servings }: { dish: Dish; month: number; servings: number }) {
+export function DishCard({ dish, month, servings, pantry }: { dish: Dish; month: number; servings: number; pantry?: Set<string> }) {
   const seasonal = seasonalIngredientsOf(dish, month);
   const scale = servings / dish.servings;
   return (
@@ -85,7 +85,10 @@ export function DishCard({ dish, month, servings }: { dish: Dish; month: number;
               const isSeasoning = INGREDIENTS[l.name]?.kind === "調味料";
               return (
                 <tr key={l.name}>
-                  <td className={isSeasoning ? "muted" : ""}>{l.name}</td>
+                  <td className={isSeasoning ? "muted" : ""}>
+                    {l.name}
+                    {pantry?.has(l.name) && <span className="badge accent" style={{ marginLeft: 6 }}>家にある</span>}
+                  </td>
                   <td>{formatAmount(l.amount == null ? null : l.amount * scale, l.unit)}</td>
                 </tr>
               );

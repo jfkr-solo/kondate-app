@@ -11,6 +11,7 @@ import {
   saveHistory,
   savePlans,
   saveSettings,
+  savePantry,
   saveShoppingChecks,
 } from "@/lib/storage";
 import { type CheckResult, validateWeek } from "@/lib/validator";
@@ -23,6 +24,8 @@ interface AppState {
   history: HistoryEntry[];
   plans: WeekPlan[];
   shoppingChecks: Record<string, boolean>;
+  pantry: string[];
+  setPantry: (items: string[]) => void;
   planFor: (weekStart: string) => WeekPlan | undefined;
   checksFor: (weekStart: string) => CheckResult[] | undefined;
   generateWeek: (...weekStarts: string[]) => string | null;
@@ -67,6 +70,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [plans, setPlans] = useState<WeekPlan[]>([]);
   const [shoppingChecks, setShoppingChecks] = useState<Record<string, boolean>>({});
+  const [pantry, setPantryState] = useState<string[]>([]);
 
   useEffect(() => {
     const t = todayStr();
@@ -78,6 +82,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setHistory(h);
     setPlans(data.plans);
     setShoppingChecks(data.shoppingChecks);
+    setPantryState(data.pantry);
     setReady(true);
   }, []);
 
@@ -120,6 +125,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             keptDays: kept,
             context: buildContext(history, others),
             settings,
+            pantry,
           });
           current = [...others, r.plan].sort((a, b) => a.weekStart.localeCompare(b.weekStart));
         } catch (e) {
@@ -129,7 +135,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       updatePlans(current);
       return null;
     },
-    [plans, history, settings, today, updatePlans],
+    [plans, history, settings, today, pantry, updatePlans],
   );
 
   const regenerateDay = useCallback(
@@ -147,6 +153,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           context: buildContext(history.filter((h) => h.date !== date), [...others, ...(existing ? [existing] : [])]),
           settings,
           forcedTypes: types,
+          pantry,
         });
         updatePlans([...others, r.plan].sort((a, b) => a.weekStart.localeCompare(b.weekStart)));
         return null;
@@ -154,7 +161,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         return e instanceof Error ? e.message : "献立を作成できませんでした。";
       }
     },
-    [plans, history, settings, updatePlans],
+    [plans, history, settings, pantry, updatePlans],
   );
 
   const recordDay = useCallback(
@@ -182,6 +189,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       history,
       plans,
       shoppingChecks,
+      pantry,
+      setPantry: (items) => {
+        setPantryState(items);
+        savePantry(items);
+      },
       planFor,
       checksFor,
       generateWeek,
@@ -200,7 +212,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         saveShoppingChecks(next);
       },
     }),
-    [ready, today, settings, history, plans, shoppingChecks, planFor, checksFor, generateWeek, regenerateDay, recordDay, updateHistoryList],
+    [ready, today, settings, history, plans, shoppingChecks, pantry, planFor, checksFor, generateWeek, regenerateDay, recordDay, updateHistoryList],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
