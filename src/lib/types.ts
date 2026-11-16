@@ -128,7 +128,6 @@ export interface WeekPlan {
 export interface Settings {
   servings: number;
   budgetPerMeal: number; // 1食あたり（世帯合計）の予算(円)
-  targetProtein: number; // 夕食1人あたりの目標タンパク質(g)
   maxCookTime: number; // 1品あたりの調理時間の上限(分)
   dislikes: string[];
   allergies: string[];
@@ -138,7 +137,6 @@ export interface Settings {
 export const DEFAULT_SETTINGS: Settings = {
   servings: 3,
   budgetPerMeal: 2000,
-  targetProtein: 30,
   maxCookTime: 45,
   dislikes: [],
   allergies: [],

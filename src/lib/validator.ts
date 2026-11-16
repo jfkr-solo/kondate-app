@@ -151,13 +151,6 @@ export function validateWeek(plan: WeekPlan, context: MealEvent[], settings: Set
       if (!main || proteinPerServing(main) <= 0) details.push(`${formatDate(day.date)} 主菜のタンパク質量が計算できない`);
     }
     results.push(check("protein", "タンパク質量が表示されている", "error", details));
-
-    const low: string[] = [];
-    for (const day of plan.days) {
-      const p = dayProtein(day);
-      if (p < settings.targetProtein * 0.8) low.push(`${formatDate(day.date)} ${p}g（目標${settings.targetProtein}g）`);
-    }
-    results.push(check("protein-target", "1人あたりのタンパク質が目標の8割以上", "warn", low));
   }
 
   // 8. ジャンル・調理方法の偏り

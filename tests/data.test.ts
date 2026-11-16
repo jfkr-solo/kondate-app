@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { DISHES } from "@/lib/dishes";
 import { INGREDIENTS, seasonalVegetables } from "@/lib/ingredients";
-import { proteinPerServing, seasonalIngredientsOf } from "@/lib/nutrition";
+import { seasonalIngredientsOf } from "@/lib/nutrition";
 import { isSameDish } from "@/lib/rules";
 
 describe("料理マスタ", () => {
@@ -40,12 +40,6 @@ describe("料理マスタ", () => {
     for (const d of DISHES) {
       expect(d.steps.length, d.name).toBeGreaterThanOrEqual(2);
       expect(d.ingredients.some((l) => l.amount != null), d.name).toBe(true);
-    }
-  });
-
-  it("主菜はタンパク質を十分に含む（1人15g以上）", () => {
-    for (const d of DISHES.filter((d) => d.category === "主菜")) {
-      expect(proteinPerServing(d), d.name).toBeGreaterThanOrEqual(15);
     }
   });
 

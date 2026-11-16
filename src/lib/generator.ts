@@ -9,7 +9,6 @@ import {
   isOutOfSeason,
   mainFoods,
   proteinFoods,
-  proteinPerServing,
   seasonalIngredientsOf,
   settingsConflict,
   usesSeasonalFish,
@@ -145,11 +144,6 @@ function scoreMain(dish: Dish, date: string, ctx: FillContext): number {
   if (tomorrow && proteinGroup(tomorrow) === group) s -= 6;
   s -= week.filter((d) => proteinGroup(d) === group).length * 2;
 
-  // 主菜で目標タンパク質の6割程度を確保したい
-  const p = proteinPerServing(dish);
-  const want = ctx.settings.targetProtein * 0.6;
-  if (p < want) s -= (want - p) * 0.6;
-
   const cost = dishCost(dish, ctx.settings.servings);
   const allowance = ctx.settings.budgetPerMeal * 0.6;
   if (cost > allowance) s -= (cost - allowance) / 100;
@@ -178,7 +172,6 @@ function scoreSide(dish: Dish, main: Dish, date: string, ctx: FillContext, weekS
   s -= proteinFoods(dish).filter((f) => mp.has(f)).length * 5;
   s -= mainFoods(dish).filter((f) => mf.has(f)).length * 1.5;
 
-  s += proteinPerServing(dish) / 4;
   s += pantryBonus(dish, ctx, 6);
   s += ctx.rng() * 2;
   return s;
