@@ -4,8 +4,8 @@ import { BottomNav } from "@/components/BottomNav";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "高タンパク献立",
-  description: "旬の野菜と高タンパクを重視した夕食の献立を自動提案します",
+  title: "献立アプリ",
+  description: "旬の野菜と栄養バランスを重視した夕食の献立を自動提案します",
 };
 
 export const viewport: Viewport = {

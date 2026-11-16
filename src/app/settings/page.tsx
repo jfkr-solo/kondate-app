@@ -49,10 +49,6 @@ export default function SettingsPage() {
           <input type="number" inputMode="numeric" step={100} min={300} max={10000} value={draft.budgetPerMeal} onChange={num("budgetPerMeal", 300, 10000)} />
         </label>
         <label className="field">
-          <span>目標タンパク質（夕食1人あたり・g）</span>
-          <input type="number" inputMode="numeric" min={10} max={100} value={draft.targetProtein} onChange={num("targetProtein", 10, 100)} />
-        </label>
-        <label className="field">
           <span>1品あたりの調理時間の上限（分）</span>
           <input type="number" inputMode="numeric" step={5} min={10} max={120} value={draft.maxCookTime} onChange={num("maxCookTime", 10, 120)} />
         </label>

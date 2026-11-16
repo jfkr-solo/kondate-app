@@ -71,7 +71,6 @@ function TodayInner() {
   const pantrySet = new Set(app.pantry);
   const foods = [...new Set(dishes.flatMap((d) => [...pantryCoverage(d!, pantrySet).have, ...pantryCoverage(d!, pantrySet).missing]))];
   const haveFoods = foods.filter((f) => pantrySet.has(f));
-  const pct = Math.min(100, Math.round((protein / app.settings.targetProtein) * 100));
 
   return (
     <>
@@ -98,13 +97,9 @@ function TodayInner() {
             <div className="label">{app.settings.servings}人分の材料費</div>
           </div>
         </div>
-        <div className="bar" style={{ marginTop: 10 }}>
-          <span style={{ width: `${pct}%` }} />
-        </div>
-        <p className="muted small" style={{ margin: "6px 0 0" }}>
-          目標 {app.settings.targetProtein}g/人 に対して {pct}%
-          {!main?.isPasta && `（ご飯150g ${riceProteinPerServing()}g を含む）`}
-          {seasonalNames.length > 0 && ` ・ 旬：${seasonalNames.join("、")}`}
+        <p className="muted small" style={{ margin: "10px 0 0" }}>
+          {!main?.isPasta && `タンパク質はご飯150g（${riceProteinPerServing()}g）を含む`}
+          {seasonalNames.length > 0 && `${main?.isPasta ? "" : " ・ "}旬：${seasonalNames.join("、")}`}
         </p>
         {app.pantry.length > 0 && (
           <p className="small" style={{ margin: "4px 0 0" }}>
